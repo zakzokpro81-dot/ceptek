@@ -24,6 +24,12 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 
 export function Home() {
+    const [order, setOrder] = React.useState('asc');
+  const [orderBy, setOrderBy] = React.useState('calories');
+  const [selected, setSelected] = React.useState([]);
+  const [page, setPage] = React.useState(0);
+  const [dense, setDense] = React.useState(false);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   function createData(id, model, piece, Quality, marka, Quantity, price) {
     return { id, model, piece, Quality, marka, Quantity, price };
@@ -36,179 +42,183 @@ export function Home() {
     createData(4, 'iphone 12', 'lcd', 'copy', 'apple', 7, 10),
   ];
 
-  /* ===================== FILTER STATE (مضاف فقط) ===================== */
-  const [filters, setFilters] = React.useState({
-    model: '',
-    piece: '',
-    Quality: '',
-    marka: '',
-    Quantity: { min: '', max: '' },
-    price: { min: '', max: '' },
-  });
-
   function descendingComparator(a, b, orderBy) {
-    if (b[orderBy] < a[orderBy]) return -1;
-    if (b[orderBy] > a[orderBy]) return 1;
-    return 0;
+  if (b[orderBy] < a[orderBy]) {
+    return -1;
   }
-
-  function getComparator(order, orderBy) {
-    return order === 'desc'
-      ? (a, b) => descendingComparator(a, b, orderBy)
-      : (a, b) => -descendingComparator(a, b, orderBy);
+  if (b[orderBy] > a[orderBy]) {
+    return 1;
   }
+  return 0;
+}
 
-  const headCells = [
-    { id: 'model', numeric: false, disablePadding: true, label: 'model' },
-    { id: 'piece', numeric: false, disablePadding: false, label: 'parça' },
-    { id: 'Quality', numeric: false, disablePadding: false, label: 'kalite' },
-    { id: 'marka', numeric: false, disablePadding: false, label: 'marka' },
-    { id: 'Quantity', numeric: true, disablePadding: false, label: 'adet' },
-    { id: 'price', numeric: true, disablePadding: false, label: 'fiyat' },
-  ];
+function getComparator(order, orderBy) {
+  return order === 'desc'
+    ? (a, b) => descendingComparator(a, b, orderBy)
+    : (a, b) => -descendingComparator(a, b, orderBy);
+}
 
-  function EnhancedTableHead(props) {
-    const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+const headCells = [
+  {
+    id: 'name',
+    numeric: false,
+    disablePadding: true,
+    label: 'model',
+  },
+  {
+    id: 'piece',
+    numeric: true,
+    disablePadding: false,
+    label: 'parça',
+  },
+  {
+    id: 'Quality',
+    numeric: true,
+    disablePadding: false,
+    label: 'kalite',
+  },
+  {
+    id: 'marka',
+    numeric: true,
+    disablePadding: false,
+    label: 'marka',
+  },
+  {
+    id: 'Quantity',
+    numeric: true,
+    disablePadding: false,
+    label: 'adet',
+  },
+  {
+    id: 'price',
+    numeric: true,
+    disablePadding: false,
+    label: 'fiyat',
+  },
+];
 
-    return (
-      <TableHead>
-        <TableRow>
-          <TableCell padding="checkbox">
-            <Checkbox
-              color="primary"
-              indeterminate={numSelected > 0 && numSelected < rowCount}
-              checked={rowCount > 0 && numSelected === rowCount}
-              onChange={onSelectAllClick}
-            />
-          </TableCell>
-
-          {headCells.map((headCell) => (
-            <TableCell
-              key={headCell.id}
-              align={headCell.numeric ? 'right' : 'left'}
-              padding={headCell.disablePadding ? 'none' : 'normal'}
-              sortDirection={orderBy === headCell.id ? order : false}
-            >
-              <TableSortLabel
-                active={orderBy === headCell.id}
-                direction={orderBy === headCell.id ? order : 'asc'}
-                onClick={(event) => onRequestSort(event, headCell.id)}
-              >
-                {headCell.label}
-                {orderBy === headCell.id && (
-                  <Box component="span" sx={visuallyHidden}>
-                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                  </Box>
-                )}
-              </TableSortLabel>
-
-              {/* ====== FILTER UI (إضافة فقط بدون كسر التصميم) ====== */}
-              {!headCell.numeric ? (
-                <TextField
-                  variant="standard"
-                  placeholder="ara"
-                  value={filters[headCell.id]}
-                  onChange={(e) =>
-                    setFilters((prev) => ({ ...prev, [headCell.id]: e.target.value }))
-                  }
-                  fullWidth
-                  InputProps={{ disableUnderline: true }}
-                />
-              ) : (
-                <Box display="flex" gap={1}>
-                  <TextField
-                    variant="standard"
-                    type="number"
-                    placeholder="dan"
-                    value={filters[headCell.id].min}
-                    onChange={(e) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        [headCell.id]: { ...prev[headCell.id], min: e.target.value },
-                      }))
-                    }
-                    InputProps={{ disableUnderline: true }}
-                  />
-                  <TextField
-                    variant="standard"
-                    type="number"
-                    placeholder="e"
-                    value={filters[headCell.id].max}
-                    onChange={(e) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        [headCell.id]: { ...prev[headCell.id], max: e.target.value },
-                      }))
-                    }
-                    InputProps={{ disableUnderline: true }}
-                  />
-                </Box>
-              )}
-            </TableCell>
-          ))}
-        </TableRow>
-      </TableHead>
-    );
-  }
-
-  EnhancedTableHead.propTypes = {
-    numSelected: PropTypes.number.isRequired,
-    onRequestSort: PropTypes.func.isRequired,
-    onSelectAllClick: PropTypes.func.isRequired,
-    order: PropTypes.oneOf(['asc', 'desc']).isRequired,
-    orderBy: PropTypes.string.isRequired,
-    rowCount: PropTypes.number.isRequired,
+function EnhancedTableHead(props) {
+  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } =
+    props;
+  const createSortHandler = (property) => (event) => {
+    onRequestSort(event, property);
   };
 
-  function EnhancedTableToolbar({ numSelected }) {
-    return (
-      <Toolbar
-        sx={{
-          pl: 2,
-          bgcolor: numSelected > 0
-            ? (theme) => alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity)
-            : 'inherit',
-        }}
-      >
-        <Typography sx={{ flex: '1 1 100%' }}>
-          {numSelected > 0 ? `${numSelected} seçildi` : 'Depo'}
+  return (
+    <TableHead>
+      <TableRow>
+        <TableCell padding="checkbox">
+          <Checkbox
+            color="primary"
+            indeterminate={numSelected > 0 && numSelected < rowCount}
+            checked={rowCount > 0 && numSelected === rowCount}
+            onChange={onSelectAllClick}
+            inputProps={{
+              'aria-label': 'select all desserts',
+            }}
+          />
+        </TableCell>
+        {headCells.map((headCell) => (
+          <TableCell
+            key={headCell.id}
+            align={headCell.numeric ? 'right' : 'left'}
+            padding={headCell.disablePadding ? 'none' : 'normal'}
+            sortDirection={orderBy === headCell.id ? order : false}
+          >
+            <TableSortLabel
+              active={orderBy === headCell.id}
+              direction={orderBy === headCell.id ? order : 'asc'}
+              onClick={createSortHandler(headCell.id)}
+            >
+              {headCell.label}
+              {orderBy === headCell.id ? (
+                <Box component="span" sx={visuallyHidden}>
+                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                </Box>
+              ) : null}
+            </TableSortLabel>
+          </TableCell>
+        ))}
+      </TableRow>
+    </TableHead>
+  );
+}
+
+EnhancedTableHead.propTypes = {
+  numSelected: PropTypes.number.isRequired,
+  onRequestSort: PropTypes.func.isRequired,
+  onSelectAllClick: PropTypes.func.isRequired,
+  order: PropTypes.oneOf(['asc', 'desc']).isRequired,
+  orderBy: PropTypes.string.isRequired,
+  rowCount: PropTypes.number.isRequired,
+};
+
+function EnhancedTableToolbar(props) {
+  const { numSelected } = props;
+  return (
+    <Toolbar
+      sx={[
+        {
+          pl: { sm: 2 },
+          pr: { xs: 1, sm: 1 },
+        },
+        numSelected > 0 && {
+          bgcolor: (theme) =>
+            alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
+        },
+      ]}
+    >
+      {numSelected > 0 ? (
+        <Typography
+          sx={{ flex: '1 1 100%' }}
+          color="inherit"
+          variant="subtitle1"
+          component="div"
+        >
+          {numSelected} seçildi
         </Typography>
-        <Tooltip title={numSelected > 0 ? 'Delete' : 'Filter list'}>
+      ) : (
+        <Typography
+          sx={{ flex: '1 1 100%' }}
+          variant="h6"
+          id="tableTitle"
+          component="div"
+        >
+          Depo
+        </Typography>
+      )}
+      {numSelected > 0 ? (
+        <Tooltip title="Delete">
           <IconButton>
-            {numSelected > 0 ? <DeleteIcon /> : <FilterListIcon />}
+            <DeleteIcon />
           </IconButton>
         </Tooltip>
-      </Toolbar>
-    );
-  }
+      ) : (
+        <Tooltip title="Filter list">
+          <IconButton>
+            <FilterListIcon />
+          </IconButton>
+        </Tooltip>
+      )}
+    </Toolbar>
+  );
+}
 
-  const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState('model');
-  const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+EnhancedTableToolbar.propTypes = {
+  numSelected: PropTypes.number.isRequired,
+};
 
-  /* ===================== FILTER LOGIC ===================== */
-  const filteredRows = rows.filter((row) => {
-    if (filters.model && !row.model.toLowerCase().includes(filters.model.toLowerCase())) return false;
-    if (filters.piece && !row.piece.toLowerCase().includes(filters.piece.toLowerCase())) return false;
-    if (filters.Quality && !row.Quality.toLowerCase().includes(filters.Quality.toLowerCase())) return false;
-    if (filters.marka && !row.marka.toLowerCase().includes(filters.marka.toLowerCase())) return false;
 
-    if (filters.Quantity.min && row.Quantity < Number(filters.Quantity.min)) return false;
-    if (filters.Quantity.max && row.Quantity > Number(filters.Quantity.max)) return false;
 
-    if (filters.price.min && row.price < Number(filters.price.min)) return false;
-    if (filters.price.max && row.price > Number(filters.price.max)) return false;
+ const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
 
-    return true;
-  });
-
-  /* ===================== SELECTION LOGIC (كما الأصل) ===================== */
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = filteredRows.map((n) => n.id);
+      const newSelected = rows.map((n) => n.id);
       setSelected(newSelected);
       return;
     }
@@ -231,16 +241,32 @@ export function Home() {
         selected.slice(selectedIndex + 1),
       );
     }
-
     setSelected(newSelected);
   };
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleChangeDense = (event) => {
+    setDense(event.target.checked);
+  };
+
+  // Avoid a layout jump when reaching the last page with empty rows.
+  const emptyRows =
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+
   const visibleRows = React.useMemo(
     () =>
-      [...filteredRows]
+      [...rows]
         .sort(getComparator(order, orderBy))
         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [order, orderBy, page, rowsPerPage, filters],
+    [order, orderBy, page, rowsPerPage],
   );
 
   return (
@@ -248,22 +274,22 @@ export function Home() {
       <Paper sx={{ width: '100%', mb: 2 }}>
         <EnhancedTableToolbar numSelected={selected.length} />
         <TableContainer>
-          <Table size={dense ? 'small' : 'medium'}>
+          <Table
+            sx={{ minWidth: 750 }}
+            aria-labelledby="tableTitle"
+            size={dense ? 'small' : 'medium'}
+          >
             <EnhancedTableHead
               numSelected={selected.length}
               order={order}
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
-              onRequestSort={(e, p) => {
-                const isAsc = orderBy === p && order === 'asc';
-                setOrder(isAsc ? 'desc' : 'asc');
-                setOrderBy(p);
-              }}
-              rowCount={filteredRows.length}
+              onRequestSort={handleRequestSort}
+              rowCount={rows.length}
             />
             <TableBody>
               {visibleRows.map((row, index) => {
-                const isItemSelected = selected.indexOf(row.id) !== -1;
+                const isItemSelected = selected.includes(row.id);
                 const labelId = `enhanced-table-checkbox-${index}`;
 
                 return (
@@ -281,42 +307,55 @@ export function Home() {
                       <Checkbox
                         color="primary"
                         checked={isItemSelected}
-                        inputProps={{ 'aria-labelledby': labelId }}
+                        inputProps={{
+                          'aria-labelledby': labelId,
+                        }}
                       />
                     </TableCell>
-                    <TableCell component="th" id={labelId} scope="row" padding="none">
+                    <TableCell
+                      component="th"
+                      id={labelId}
+                      scope="row"
+                      padding="none"
+                    >
                       {row.model}
                     </TableCell>
-                    <TableCell>{row.piece}</TableCell>
-                    <TableCell>{row.Quality}</TableCell>
-                    <TableCell>{row.marka}</TableCell>
+                    <TableCell align="right">{row.piece}</TableCell>
+                    <TableCell align="right">{row.Quality}</TableCell>
+                    <TableCell align="right">{row.marka}</TableCell>
                     <TableCell align="right">{row.Quantity}</TableCell>
                     <TableCell align="right">{row.price}</TableCell>
                   </TableRow>
                 );
               })}
+              {emptyRows > 0 && (
+                <TableRow
+                  style={{
+                    height: (dense ? 33 : 53) * emptyRows,
+                  }}
+                >
+                  <TableCell colSpan={6} />
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </TableContainer>
-
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={filteredRows.length}
+          count={rows.length}
           rowsPerPage={rowsPerPage}
           page={page}
-          onPageChange={(e, p) => setPage(p)}
-          onRowsPerPageChange={(e) => {
-            setRowsPerPage(parseInt(e.target.value, 10));
-            setPage(0);
-          }}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-
       <FormControlLabel
-        control={<Switch checked={dense} onChange={(e) => setDense(e.target.checked)} />}
+        control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Yoğun dolgu"
       />
     </Box>
   );
+
+
 }
