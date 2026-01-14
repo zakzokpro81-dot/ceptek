@@ -15,24 +15,14 @@ const router = createBrowserRouter(
     <Route path="/" element={<Root />}>
       <Route index element={<Home />} />
       <Route path="create" element={<Create />} />
-      <Route path="*" element={<NotFound/>}/>
+      <Route path="*" element={<NotFound />} />
     </Route>
   )
 );
 
-
-
-
-
-
 function App() {
   return (
-    
- <RouterProvider router={router} />
-    
-   
-
-
+    <RouterProvider router={router} />
   );
 }
 

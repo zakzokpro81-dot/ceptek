@@ -35,7 +35,6 @@ export function Root() {
                     ali: {
                         main: "#64748B",
                     },
-
                     favColor: {
                         main: grey[300],
                     },
@@ -45,39 +44,29 @@ export function Root() {
                     ali: {
                         main: teal[500],
                     },
-
                     favColor: {
                         main: grey[800],
                     },
                 }),
         },
     });
-
-
-
     const drawerWidth = 240;
     return (
-
         <ThemeProvider theme={darkTheme}>
             <CssBaseline />
             <div>
                 <Appbar
-
-                    showDrawer={showDrawer}
-                    drawerWidth={drawerWidth}
-
+                    {...{ showDrawer, drawerWidth }}
                 />
-
-                <Drawerr drawerWidth={drawerWidth}
-                    setMode={setMode}
-                    hideDrawer={hideDrawer}
-                    displayDrawer={displayDrawer}
-                    drawerType={drawerType} />
-                <Box sx={{ ml: { md: `${drawerWidth}px` }, display: "flex", justifyContent: "center" }}>
-
+                <Drawerr
+                    {...{ drawerWidth, setMode, hideDrawer, displayDrawer, drawerType }}
+                />
+                <Box sx={{
+                    ml: { md: `${drawerWidth}px` },
+                    display: "flex", justifyContent: "center"
+                }}>
                     <Outlet />
                 </Box>
-
             </div>
         </ThemeProvider>
 

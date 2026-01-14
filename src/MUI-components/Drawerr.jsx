@@ -51,7 +51,7 @@ export function Drawerr({ drawerWidth, hideDrawer, setMode, displayDrawer,
                     sx={{ display: "flex", justifyContent: "center", mb: "14px" }}>
                     <IconButton variant="contained" color="primary"
                         onClick={() => {
-
+                            
                             setMode(theme.palette.mode === "light" ? "dark" : "light")
                             localStorage.setItem("currentMode", theme.palette.mode === "light" ? "dark" : "light")
                         }}>
@@ -66,6 +66,10 @@ export function Drawerr({ drawerWidth, hideDrawer, setMode, displayDrawer,
 
                     return (
                         <ListItem disablePadding
+                            onClick={()=>{
+
+                                hideDrawer()
+                            }}
                             sx={{ bgcolor: currentPath.pathname === item.path ? theme.palette.favColor.main : null }}>
                             <ListItemButton onClick={() => {
                                 navigate(item.path)
